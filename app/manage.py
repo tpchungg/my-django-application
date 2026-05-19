@@ -7,9 +7,7 @@ def main():
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
-        raise ImportError(
-            "Không thể import Django. Hãy đảm bảo thư viện đã được cài đặt."
-        ) from exc
+        raise ImportError("Không tìm thấy Django.") from exc
     execute_from_command_line(sys.argv)
 
 if __name__ == '__main__':

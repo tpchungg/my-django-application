@@ -9,3 +9,4 @@ spec:
     resources:
         requests:
             memory: 300Mi
+    serviceMonitorNamespaceSelector: {}
