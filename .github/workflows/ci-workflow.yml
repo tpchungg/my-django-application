@@ -1,0 +1,83 @@
+name: CI/CD pipeline for Django application
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  packages: write
+  security-events: write
+  actions: read
+
+jobs:
+#Test images
+    build-and-test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            #Build image to test
+            - name: Build Docker Image
+              run: docker build -t myapp:${{ github.sha }} .
+            #Test Trivy
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+              with:
+                image-ref: 'myapp:${{ github.sha }}'
+                format: 'template'
+                template: '@/contrib/sarif.tpl'
+                output: 'trivy-results.sarif'
+                severity: 'CRITICAL,HIGH'
+            
+            - name: Upload Trivy scan results to GitHub Security tab
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+               sarif_file: 'trivy-results.sarif'
+             #Test pytest          
+            - name: Test #Run container and test
+              run: |
+               docker run -d -p 8080:8080 --name test-container myapp:${{ github.sha }}
+               sleep 5
+               curl -f http://localhost:8080
+               if [ $? -ne 0 ]; then
+                 docker logs test-container
+                 exit 1
+               fi
+
+#Push image to Docker Hub
+    push-to-registry:
+        needs: build-and-test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+
+            - name: Build Docker Image
+              run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/my_django_app:${{ github.sha }} .
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v4
+              with:
+               username: ${{ vars.DOCKERHUB_USERNAME }}
+               password: ${{ secrets.DOCKERHUB_TOKEN }}
+            
+            - name: Push image to Docker Hub
+              run: docker push ${{ vars.DOCKERHUB_USERNAME }}/my_django_app:${{ github.sha }}
+
+            - name: Update Kubernetes Manifest
+              run: |
+                sed -i "s|image: ${{ vars.DOCKERHUB_USERNAME }}/my_django_app:.*|image: ${{ vars.DOCKERHUB_USERNAME }}/my_django_app:${{ github.sha }}|g" k8s/deployment.yaml
+                git config --global user.name "Git Action [Auto update image]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                git add k8s/deployment.yaml
+                git commit -m "chore: Update image to ${{ github.sha }}"
+                git push
