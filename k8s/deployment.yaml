@@ -29,11 +29,14 @@ kind: Service
 metadata:
   name: my-django-service
   namespace: my-django-namespace
+  labels:
+    app: my-django-service
 spec:
   type: ClusterIP
   selector:
     app: my-django-app
   ports:
-    - protocol: TCP
+    - name: metrics
+      protocol: TCP
       port: 80
       targetPort: 8080
