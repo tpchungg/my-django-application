@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ .
 
 # Khai báo cổng lắng nghe
-EXPOSE 8080
+EXPOSE 7070
 
 # Chạy Django Server lắng nghe ở mọi interface (0.0.0.0) trên cổng 8080
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:7070"]

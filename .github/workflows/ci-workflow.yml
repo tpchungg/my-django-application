@@ -44,9 +44,8 @@ jobs:
             - name: Test #Run container and test
               run: |
                docker run -d -p 7070:7070 --name test-container myapp:${{ github.sha }}
-               sleep 5
-               curl -f http://localhost:7070
-               if [ $? -ne 0 ]; then
+               sleep 15
+               if ! curl -f http://localhost:7070; then
                  docker logs test-container
                  exit 1
                fi
