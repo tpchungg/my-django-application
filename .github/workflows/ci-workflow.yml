@@ -43,9 +43,9 @@ jobs:
              #Test pytest          
             - name: Test #Run container and test
               run: |
-               docker run -d -p 8080:8080 --name test-container myapp:${{ github.sha }}
+               docker run -d -p 7070:7070 --name test-container myapp:${{ github.sha }}
                sleep 5
-               curl -f http://localhost:8080
+               curl -f http://localhost:7070
                if [ $? -ne 0 ]; then
                  docker logs test-container
                  exit 1
