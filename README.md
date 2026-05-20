@@ -65,7 +65,7 @@ DJANGO-PROMETHEUS/
 ├── .gitignore
 ├── Dockerfile                   # Multi-layer optimized Dockerfile for the Django app
 └── requirements.txt             # Python dependencies (Django, prometheus_client, etc.)
-
+```
 ## 🏗️ Architecture & Workflow
 
 The pipeline follows a strict GitOps methodology. Changes to the source code trigger the CI pipeline, which builds the image, scans for vulnerabilities, and updates the Kubernetes manifests. ArgoCD automatically detects these changes and syncs the cluster state.
@@ -104,3 +104,4 @@ graph TD
         Prometheus[Prometheus Instance] -.->|ServiceMonitor - /metrics| DjangoService
         Grafana[Grafana Dashboard] -->|Query Metrics| Prometheus
     end
+```
