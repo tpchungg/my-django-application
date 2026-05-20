@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: my-django-container
-          image: tpchungg/my_django_app:d9d726ed96ffc1619ad8ff875d348234d2fdce46
+          image: tpchungg/my_django_app:324b99b76c0185e96eef4c66f310bd0e5be04985
           imagePullPolicy: Always
           ports:
           - containerPort: 7070
