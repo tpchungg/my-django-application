@@ -5,7 +5,7 @@ metadata:
   name: my-django-deployment
   labels:
     app: my-django-app
-  namepsace: my-django-namespace
+  namespace: my-django-namespace
 spec:
   replicas: 3
   selector:
@@ -21,7 +21,7 @@ spec:
           image: tpchungg/my_django_app:825f6ce23a6712e793bc517a6c7094bbaed8ffee
           imagePullPolicy: Always
           ports:
-          - containerPort: 80
+          - containerPort: 7070
 
 ---
 apiVersion: v1
