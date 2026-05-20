@@ -15,30 +15,29 @@ This project demonstrates a complete Cloud-Native workflow for a Django applicat
 
 ## ✨ Key Features & Functions
 
-1. Continuous Integration (CI) - GitHub Actions
-Automated Build & Test: Builds a lightweight Python 3.12-slim Docker image and runs a detached container to verify the application is responding on port 7070.
+1. **Continuous Integration (CI) - GitHub Actions**
+**Automated Build & Test:** Builds a lightweight Python 3.12-slim Docker image and runs a detached container to verify the application is responding on port 7070.
 
-Security Scanning: Integrates aquasecurity/trivy-action to scan the built Docker image for CRITICAL and HIGH vulnerabilities. Results are exported in SARIF format.
+**Security Scanning:** Integrates aquasecurity/trivy-action to scan the built Docker image for CRITICAL and HIGH vulnerabilities. Results are exported in SARIF format.
 
-Artifact Management: Automatically logs into Docker Hub and pushes the versioned image (${{ github.sha }}).
+**Artifact Management:** Automatically logs into Docker Hub and pushes the versioned image (${{ github.sha }}).
 
-Manifest Mutation: Uses sed to automatically inject the new image tag into the Kubernetes deployment.yaml and commits the changes back to the repository using a bot account.
+**Manifest Mutation:** Uses sed to automatically inject the new image tag into the Kubernetes deployment.yaml and commits the changes back to the repository using a bot account.
 
-2. Continuous Deployment (CD) - GitOps via ArgoCD
-Declarative Setup: ArgoCD Application (argo-app.yaml) points directly to the k8s directory in the repository.
+2. **Continuous Deployment (CD) - GitOps via ArgoCD**
+**Declarative Setup:** ArgoCD Application (argo-app.yaml) points directly to the k8s directory in the repository.
 
-Automated Sync: Configured with selfHeal: true and prune: true to ensure the cluster state strictly matches the Git repository.
+**Automated Sync:** Configured with selfHeal: true and prune: true to ensure the cluster state strictly matches the Git repository.
 
-Zero-Downtime Deployment: Rolling updates managed natively by Kubernetes via the Deployment controller (running 3 replicas).
+**Zero-Downtime Deployment:** Rolling updates managed natively by Kubernetes via the Deployment controller (running 3 replicas).
 
-3. Monitoring & Observability
-Application Metrics: The Django app exposes custom metrics via prometheus_client at the /metrics endpoint.
+3. **Monitoring & Observability**
+**Application Metrics:** The Django app exposes custom metrics via prometheus_client at the /metrics endpoint.
 
 Dynamic Scraping (Prometheus): Uses a ServiceMonitor (service_monitor.yaml) to dynamically discover the Django service and scrape metrics every 30 seconds with strict RBAC configurations.
 
 Data Visualization (Grafana): Connects to Prometheus as a data source to visualize application performance, request rates, and cluster health through interactive dashboards.
 
-## 📂 Project Structure
 
 ## 📂 Project Structure
 
@@ -66,6 +65,8 @@ DJANGO-PROMETHEUS/
 ├── Dockerfile                   # Multi-layer optimized Dockerfile for the Django app
 └── requirements.txt             # Python dependencies (Django, prometheus_client, etc.)
 ```
+
+
 ## 🏗️ Architecture & Workflow
 
 The pipeline follows a strict GitOps methodology. Changes to the source code trigger the CI pipeline, which builds the image, scans for vulnerabilities, and updates the Kubernetes manifests. ArgoCD automatically detects these changes and syncs the cluster state.
