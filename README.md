@@ -12,46 +12,9 @@
 ## 📖 Overview
 This project demonstrates a complete Cloud-Native workflow for a Django application. It features a fully automated CI/CD pipeline using **GitHub Actions** and **ArgoCD** (GitOps approach), deployed on a **Kubernetes** cluster with comprehensive observability powered by the **Prometheus & Grafana** stack.
 
-## 🏗️ Architecture & Workflow
 
-The pipeline follows a strict GitOps methodology. Changes to the source code trigger the CI pipeline, which builds the image, scans for vulnerabilities, and updates the Kubernetes manifests. ArgoCD automatically detects these changes and syncs the cluster state.
+## ✨ Key Features & Functions
 
-```mermaid
-graph TD
-    %% Developer Push
-    Dev([fas:fa-user Developer]) -->|1. Push Code/Tags| GitHub[fab:fa-github GitHub Repository: main]
-    
-    %% CI Pipeline
-    subgraph CI [Continuous Integration: GitHub Actions]
-        GitHub -->|Trigger| Checkout[fas:fa-code-branch Checkout Code]
-        Checkout --> BuildImage[fab:fa-docker Build Docker Image]
-        BuildImage --> Scan[fas:fa-shield-alt Trivy Vulnerability Scan]
-        Scan --> Test[fab:fa-python Run Pytest / Healthcheck]
-    end
-    
-    %% Registry & CD Bridge
-    subgraph Registry [Artifacts & Updates]
-        Test -->|If Passed| PushImage[fab:fa-docker Push to Docker Hub]
-        PushImage --> UpdateManifest[fas:fa-edit Update k8s/deployment.yaml]
-        UpdateManifest -->|Commit & Push| GitHub
-    end
-    
-    %% CD Pipeline & Kubernetes
-    subgraph CD [Continuous Deployment: Kubernetes]
-        GitHub -.->|2. Watch targetRevision| ArgoCD{fas:fa-sync ArgoCD}
-        ArgoCD -->|3. Sync Manifests| K8sCluster[fas:fa-server K8s Namespace: my-django-namespace]
-        
-        K8sCluster --> DjangoDeployment[fas:fa-layer-group Django App Replicas]
-        K8sCluster --> DjangoService[fas:fa-network-wired Django ClusterIP Service]
-    end
-
-    %% Monitoring
-    subgraph Observability [Monitoring: Prometheus & Grafana]
-        Prometheus[fas:fa-database Prometheus Instance] -.->|ServiceMonitor: /metrics| DjangoService
-        Grafana[fas:fa-chart-line Grafana Dashboard] -->|Query Metrics| Prometheus
-    end
-
-✨ Key Features & Functions
 1. Continuous Integration (CI) - GitHub Actions
 Automated Build & Test: Builds a lightweight Python 3.12-slim Docker image and runs a detached container to verify the application is responding on port 7070.
 
@@ -75,22 +38,69 @@ Dynamic Scraping (Prometheus): Uses a ServiceMonitor (service_monitor.yaml) to d
 
 Data Visualization (Grafana): Connects to Prometheus as a data source to visualize application performance, request rates, and cluster health through interactive dashboards.
 
-📂 Project Structure
+## 📂 Project Structure
 
-MY-DJANGO-APPLICATION/
+## 📂 Project Structure
+
+```text
+DJANGO-PROMETHEUS/
 ├── .github/workflows/
 │   └── ci-workflow.yml          # GitHub Actions CI/CD Pipeline
 ├── app/                         # Django Application Source Code
-│   ├── core/
-│   ├── manage.py
-│   ├── requirements.txt         # Dependencies including Django, prometheus_client
-│   └── Dockerfile               # Multi-layer optimized Dockerfile
-└── k8s/                         # Kubernetes GitOps Manifests
-    ├── deployment.yaml          # App Deployment & Service
-    ├── argo-app.yaml            # ArgoCD Application CRD
-    └── monitoring/              # Observability Stack Configurations
-        ├── expose_prometheus.yaml
-        ├── prometheus_instance.yaml
-        ├── prometheus_rbac.yaml
-        ├── service_monitor.yaml
-        └── grafana/             # (Optional) Grafana manifests and dashboards
+│   ├── core/                    # Django core settings and configurations
+│   ├── home/                    # Django application module (views, models, etc.)
+│   └── manage.py
+├── k8s/                         # Kubernetes GitOps Manifests
+│   ├── grafana/                 # Grafana visualization manifests
+│   │   ├── grafana-dashboard.yaml
+│   │   ├── grafana-datasource.yaml
+│   │   └── grafana-deployment.yaml
+│   ├── prometheus/              # Prometheus observability stack
+│   │   ├── expose_prometheus.yaml
+│   │   ├── prometheus_instance.yaml
+│   │   ├── prometheus_rbac.yaml
+│   │   └── service_monitor.yaml
+│   ├── argo-app.yaml            # ArgoCD Application CRD
+│   └── deployment.yaml          # Django App Deployment & ClusterIP Service
+├── .gitignore
+├── Dockerfile                   # Multi-layer optimized Dockerfile for the Django app
+└── requirements.txt             # Python dependencies (Django, prometheus_client, etc.)
+
+## 🏗️ Architecture & Workflow
+
+The pipeline follows a strict GitOps methodology. Changes to the source code trigger the CI pipeline, which builds the image, scans for vulnerabilities, and updates the Kubernetes manifests. ArgoCD automatically detects these changes and syncs the cluster state.
+
+```mermaid
+graph TD
+    %% Developer Push
+    Dev([Developer]) -->|1. Push Code/Tags| GitHub[GitHub Repository - main]
+    
+    %% CI Pipeline
+    subgraph CI [Continuous Integration - GitHub Actions]
+        GitHub -->|Trigger| Checkout[Checkout Code]
+        Checkout --> BuildImage[Build Docker Image]
+        BuildImage --> Scan[Trivy Vulnerability Scan]
+        Scan --> Test[Run Pytest / Healthcheck]
+    end
+    
+    %% Registry & CD Bridge
+    subgraph Registry [Artifacts & Updates]
+        Test -->|If Passed| PushImage[Push to Docker Hub]
+        PushImage --> UpdateManifest[Update k8s/deployment.yaml]
+        UpdateManifest -->|Commit & Push| GitHub
+    end
+    
+    %% CD Pipeline & Kubernetes
+    subgraph CD [Continuous Deployment - Kubernetes]
+        GitHub -.->|2. Watch targetRevision| ArgoCD{ArgoCD}
+        ArgoCD -->|3. Sync Manifests| K8sCluster[K8s Namespace - my-django-namespace]
+        
+        K8sCluster --> DjangoDeployment[Django App Replicas]
+        K8sCluster --> DjangoService[Django ClusterIP Service]
+    end
+
+    %% Monitoring
+    subgraph Observability [Monitoring - Prometheus & Grafana]
+        Prometheus[Prometheus Instance] -.->|ServiceMonitor - /metrics| DjangoService
+        Grafana[Grafana Dashboard] -->|Query Metrics| Prometheus
+    end
