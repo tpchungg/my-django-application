@@ -1,18 +1,20 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-    labels:
-        name: prometheus
-    name: prometheus
-    namespace: monitoring
+  name: my-django-servicemonitor
+  namespace: monitoring
+  labels:
+    name: prometheus 
 spec:
-    endpoints:
-        - interval: 30s
-          targetPort: 9090
-          path: /metrics
-    namespaceSelector:
-        matchNames:
-          - my-django-namespace
-    selector:
-        matchLabels:
-            operated-prometheus: "true"
+  namespaceSelector:
+    matchNames:
+      - my-django-namespace
+      
+  selector:
+    matchLabels:
+      app: my-django-service
+      
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
